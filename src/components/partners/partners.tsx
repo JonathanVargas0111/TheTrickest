@@ -14,12 +14,6 @@ const Partners = () => {
       website: 'https://deepfc.com/',
     },
     {
-      name: 'Tory Skateshop',
-      roleKey: 'toryRole',
-      imageSrc: '/logo-tory.jpg',
-      website: 'https://toryskateshop.com/',
-    },
-    {
       name: 'Nandark',
       roleKey: 'nandarkRole',
       imageSrc: '/nandark-isotipo.png',

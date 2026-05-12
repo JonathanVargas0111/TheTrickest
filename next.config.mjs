@@ -112,11 +112,6 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.supabase.co',
       },
-      // Backend URL - para imágenes de perfil en /uploads/
-      {
-        protocol: 'https',
-        hostname: 'skaters.toryskateshop.com',
-      },
     ],
   },
 

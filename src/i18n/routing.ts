@@ -9,7 +9,11 @@ export const routing = defineRouting({
   defaultLocale: 'en',
 
   // Prefix the default locale as well (e.g., /en/dashboard instead of /dashboard)
-  localePrefix: 'always'
+  localePrefix: 'always',
+
+  // Disable Accept-Language header detection so default is ALWAYS English.
+  // Producto internacional — el usuario elige idioma activamente, no auto-detect.
+  localeDetection: false
 });
 
 // Lightweight wrappers around Next.js navigation APIs

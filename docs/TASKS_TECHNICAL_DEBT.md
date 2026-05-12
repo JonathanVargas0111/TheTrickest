@@ -5,9 +5,9 @@
 
 ---
 
-## 1. Admin Dashboard (currently ~60%)
+## 1. Admin Dashboard (currently ~85%)
 
-### Status: UI exists, API routes missing
+### Status: API routes created, pending QA from other dev
 
 **What exists:**
 - `src/app/[locale]/(routes)/dashboard/admin/page.tsx` — Main dashboard with stats cards (Server Component)
@@ -43,6 +43,28 @@ The UI pages fetch from API routes that don't exist yet:
 - Translations already exist: `adminDashboard`, `adminUsers`, `adminChallengesPage`, `adminSubmissionsPage`, `adminSettingsPage`, `adminPage` namespaces
 
 **Priority:** HIGH — needed for platform management at launch
+
+### PENDING: QA Testing by Other Dev (admin account required)
+
+Test all admin pages logged in as admin. Fill results and return to Felipe.
+
+| # | Test | URL | OK/FAIL | Notes |
+|---|------|-----|---------|-------|
+| 1 | Dashboard loads with real stats | `/en/dashboard/admin` | | |
+| 2 | Users: list loads with photos and roles | `/en/dashboard/admin/users` | | |
+| 3 | Users: change user role via dropdown | `/en/dashboard/admin/users` | | |
+| 4 | Users: role filter works | `/en/dashboard/admin/users` | | |
+| 5 | Users: pagination works | `/en/dashboard/admin/users` | | |
+| 6 | Challenges: list loads with stats per challenge | `/en/dashboard/admin/challenges` | | |
+| 7 | Challenges: create new challenge | `/en/dashboard/admin/challenges` | | |
+| 8 | Challenges: edit existing challenge | `/en/dashboard/admin/challenges` | | |
+| 9 | Challenges: delete challenge (no submissions) | `/en/dashboard/admin/challenges` | | |
+| 10 | Submissions: list loads with user + challenge info | `/en/dashboard/admin/submissions` | | |
+| 11 | Submissions: status filter works | `/en/dashboard/admin/submissions` | | |
+| 12 | Submissions: re-evaluate submission (change score) | `/en/dashboard/admin/submissions` | | |
+| 13 | Settings: change total levels | `/en/dashboard/admin/settings` | | |
+
+**After QA:** Report results to Felipe. Any FAIL items will be fixed in next session.
 
 ---
 
