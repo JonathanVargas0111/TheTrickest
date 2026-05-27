@@ -40,6 +40,7 @@ export function SupabaseRealtimeProvider({ children }: { children: ReactNode }) 
   const userIdRef = useRef<string | null>(null);
   const isSubscribedRef = useRef(false);
   const retryCountRef = useRef(0);
+  const unreadCountRef = useRef(0);
 
   const refreshUnreadCount = async () => {
     if (!session?.user?.email) return;
@@ -49,15 +50,33 @@ export function SupabaseRealtimeProvider({ children }: { children: ReactNode }) 
       const data = await response.json();
       if (response.ok && data.data) {
         const newCount = data.data.unreadCount || 0;
-        if (newCount > unreadCount && unreadCount > 0) {
+        const previousCount = unreadCountRef?.current || 0;
+        if (newCount > previousCount) {
           setHasNewNotifications(true);
         }
+        unreadCountRef.current = newCount;
         setUnreadCount(newCount);
       }
     } catch (error) {
       console.error('Error refrescando notificaciones:', error);
     }
   };
+
+  // Polling como fallback (cada 10 segundos) - más confiable que solo realtime
+  useEffect(() => {
+    if (!session?.user?.email) return;
+
+    // Initial fetch
+    refreshUnreadCount();
+
+    // Poll cada 10 segundos
+    const pollInterval = setInterval(() => {
+      console.log('🔄 [Polling] Verificando notificaciones...');
+      refreshUnreadCount();
+    }, 10000);
+
+    return () => clearInterval(pollInterval);
+  }, [session?.user?.email]);
 
   useEffect(() => {
     if (!supabase) {
@@ -114,12 +133,16 @@ export function SupabaseRealtimeProvider({ children }: { children: ReactNode }) 
           table: 'Notification'
         },
         async (payload) => {
-          console.log('📨 [Realtime] Evento recibido:', payload);
+          console.log('📨 [Realtime] Evento recibido:', payload.eventType, payload);
           if (payload.eventType !== 'INSERT') return;
 
           const newNotification = payload.new as any;
+          console.log('🔍 [Realtime] Comparando userId - DB:', newNotification.userId, 'Session:', userId);
 
-          if (newNotification.userId !== userId) return;
+          if (newNotification.userId !== userId) {
+            console.log('❌ [Realtime] userId no coincide, ignorando');
+            return;
+          }
 
           console.log('✅ [Realtime] Notificación para mi:', newNotification);
           if (!newNotification.isRead) {

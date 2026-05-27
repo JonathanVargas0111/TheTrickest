@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import TeamLogoUpload from '@/components/TeamLogoUpload';
 
 interface TeamMember {
   email: string;
@@ -687,44 +688,17 @@ export default function TeamsPage() {
                 </p>
               </div>
 
-              {/* Team logo */}
+              {/* Team logo upload */}
               <div>
-                <label className="text-accent-purple-400 text-sm font-bold uppercase block mb-2">
+                <label className="text-accent-purple-400 text-sm font-bold uppercase block mb-4">
                   {t('logoUrl')}
                 </label>
-                <input
-                  type="url"
-                  value={newTeamLogo}
-                  onChange={(e) => setNewTeamLogo(e.target.value)}
-                  className="w-full bg-neutral-800 border-2 border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-neutral-400 focus:border-accent-purple-500 focus:outline-none transition-colors"
-                  placeholder={t('logoUrlPlaceholder')}
+                <TeamLogoUpload
+                  currentLogo={newTeamLogo}
+                  onLogoChange={setNewTeamLogo}
+                  teamName={newTeamName || 'Team'}
                 />
-                <p className="text-neutral-300 text-xs mt-1">
-                  {t('logoUrlHint')}
-                </p>
               </div>
-
-              {/* Logo preview */}
-              {newTeamLogo && (
-                <div className="bg-neutral-800 rounded-lg p-3 border-2 border-neutral-700">
-                  <p className="text-neutral-400 text-xs uppercase mb-2">{t('preview')}</p>
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={newTeamLogo}
-                      alt="Preview"
-                      className="w-12 h-12 rounded-lg object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                    <div className="flex-1">
-                      <p className="text-white text-sm font-bold truncate">
-                        {newTeamName || t('teamNamePreview')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Description */}
               <div>
@@ -796,44 +770,17 @@ export default function TeamsPage() {
                 />
               </div>
 
-              {/* Team logo */}
+              {/* Team logo upload */}
               <div>
-                <label className="text-accent-purple-400 text-sm font-bold uppercase block mb-2">
+                <label className="text-accent-purple-400 text-sm font-bold uppercase block mb-4">
                   {t('logoUrl')}
                 </label>
-                <input
-                  type="url"
-                  value={editTeamLogo}
-                  onChange={(e) => setEditTeamLogo(e.target.value)}
-                  className="w-full bg-neutral-800 border-2 border-neutral-600 rounded-lg px-4 py-3 text-white placeholder-neutral-400 focus:border-accent-purple-500 focus:outline-none transition-colors"
-                  placeholder={t('logoUrlPlaceholder')}
+                <TeamLogoUpload
+                  currentLogo={editTeamLogo}
+                  onLogoChange={setEditTeamLogo}
+                  teamName={editTeamName || myTeam.name}
                 />
-                <p className="text-neutral-300 text-xs mt-1">
-                  {t('logoUrlHintEdit')}
-                </p>
               </div>
-
-              {/* Logo preview */}
-              {editTeamLogo && (
-                <div className="bg-neutral-800 rounded-lg p-3 border-2 border-neutral-700">
-                  <p className="text-neutral-400 text-xs uppercase mb-2">{t('preview')}</p>
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={editTeamLogo}
-                      alt="Preview"
-                      className="w-12 h-12 rounded-lg object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                    <div className="flex-1">
-                      <p className="text-white text-sm font-bold truncate">
-                        {editTeamName || myTeam.name}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Description */}
               <div>
