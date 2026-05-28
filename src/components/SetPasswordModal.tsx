@@ -36,23 +36,13 @@ export default function SetPasswordModal({ isOpen, onClose, onSuccess }: SetPass
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Debug: try to get translations, log if fails
-  let t;
-  try {
-    t = useTranslations('setPasswordModal');
-    console.log('✅ SetPasswordModal: translations loaded successfully');
-  } catch (err) {
-    console.error('❌ SetPasswordModal: translations FAILED to load', err);
-  }
+  const t = useTranslations('setPasswordModal');
 
-  // Get translation with fallback
   const getT = (key: string): string => {
     try {
-      if (!t) return fallbackTranslations[key] || key;
       const value = t(key);
       return typeof value === 'string' ? value : fallbackTranslations[key] || key;
-    } catch (err) {
-      console.error('❌ getT failed for key:', key, err);
+    } catch {
       return fallbackTranslations[key] || key;
     }
   };
