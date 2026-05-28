@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import LocationSelector from './LocationSelector';
@@ -12,15 +12,42 @@ interface ModalProps {
 }
 
 const SkateProfileCompletionModal: React.FC<ModalProps> = ({ openModal, handleModal }) => {
-    const [formData, setFormData] = useState({ phone: '' });
+    const [formData, setFormData] = useState({ phone: '', username: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>('');
+    const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
     const { data: session } = useSession();
     const router = useRouter();
     const t = useTranslations('skateProfileModal');
 
     const [selectedCity, setSelectedCity] = useState<string>('');
     const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+
+    // Debounced username availability check
+    useEffect(() => {
+        if (!formData.username || formData.username.length < 3) {
+            setUsernameStatus('idle');
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(formData.username)) {
+            setUsernameStatus('idle');
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setUsernameStatus('checking');
+            try {
+                const res = await fetch(`/api/users/check-username?username=${encodeURIComponent(formData.username)}`);
+                const data = await res.json();
+                setUsernameStatus(data.available ? 'available' : 'taken');
+            } catch {
+                setUsernameStatus('idle');
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [formData.username]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,6 +65,24 @@ const SkateProfileCompletionModal: React.FC<ModalProps> = ({ openModal, handleMo
         }
 
         // Form validations
+        if (!formData.username) {
+            setError('Username is required');
+            setLoading(false);
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(formData.username)) {
+            setError('Username must be 3-20 characters, letters, numbers and underscores only');
+            setLoading(false);
+            return;
+        }
+
+        if (usernameStatus === 'taken') {
+            setError('Username is already taken. Please choose another one.');
+            setLoading(false);
+            return;
+        }
+
         if (!formData.phone) {
             setError(t('errorPhoneRequired'));
             setLoading(false);
@@ -59,6 +104,7 @@ const SkateProfileCompletionModal: React.FC<ModalProps> = ({ openModal, handleMo
         try {
             const payload = {
                 email: session.user.email,
+                username: formData.username,
                 phone: formData.phone,
                 ciudad: selectedCity,
                 departamento: selectedDepartment,
@@ -109,6 +155,46 @@ const SkateProfileCompletionModal: React.FC<ModalProps> = ({ openModal, handleMo
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4 px-4 pb-4 flex-grow">
+                    {/* Username field */}
+                    <div>
+                        <label className="block text-neutral-700 text-sm font-bold mb-2">Username:</label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleChange}
+                                className={`w-full px-3 py-2 border rounded shadow-sm focus:outline-none bg-white text-neutral-900 pr-10 ${
+                                    usernameStatus === 'taken' ? 'border-red-500' :
+                                    usernameStatus === 'available' ? 'border-green-500' : ''
+                                }`}
+                                placeholder="@yourusername"
+                                required
+                                minLength={3}
+                                maxLength={20}
+                                pattern="[a-zA-Z0-9_]+"
+                            />
+                            {/* Status indicator */}
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                {usernameStatus === 'checking' && (
+                                    <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                                )}
+                                {usernameStatus === 'available' && (
+                                    <span className="text-green-500 text-lg">✓</span>
+                                )}
+                                {usernameStatus === 'taken' && (
+                                    <span className="text-red-500 text-lg">✗</span>
+                                )}
+                            </div>
+                        </div>
+                        <p className="text-neutral-500 text-xs mt-1">
+                            {usernameStatus === 'checking' && 'Checking availability...'}
+                            {usernameStatus === 'available' && <span className="text-green-600">Username available!</span>}
+                            {usernameStatus === 'taken' && <span className="text-red-600">Username already taken</span>}
+                            {(usernameStatus === 'idle' || usernameStatus === 'checking') && '3-20 characters, letters, numbers and underscores only'}
+                        </p>
+                    </div>
+
                     {/* Phone field */}
                     <div>
                         <label className="block text-neutral-700 text-sm font-bold mb-2">{t('phone')}:</label>

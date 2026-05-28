@@ -247,7 +247,7 @@
     "title": "ADDITIONAL SECURITY",
     "subtitle": "For security, create a password for your account",
     "password": "Password",
-    "passwordPlaceholder": "Minimum 6 characters",
+    "passwordPlaceholder": "8+ chars: A, a, 1, @$!%*?&",
     "confirmPassword": "Confirm Password",
     "confirmPlaceholder": "Repeat your password",
     "securityNote": "This password will be used in addition to your Google account for extra security",
@@ -255,7 +255,7 @@
     "saving": "SAVING...",
     "skipForNow": "SKIP FOR NOW",
     "pressEscToClose": "Press ESC to close",
-    "passwordMinLength": "Password must be at least 6 characters",
+    "passwordMinLength": "Password must be at least 8 characters",
     "passwordsNoMatch": "Passwords do not match",
     "errorSetting": "Error setting password"
   },

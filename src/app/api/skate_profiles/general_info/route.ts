@@ -40,6 +40,7 @@ export async function PUT(req: Request) {
     const data = await req.json();
     const {
       email,
+      username,
       name,
       phone,
       photo,
@@ -64,6 +65,22 @@ export async function PUT(req: Request) {
       );
     }
 
+    // Si se proporciona username, verificar que sea único
+    if (username) {
+      const existingUsername = await prisma.user.findFirst({
+        where: {
+          username,
+          email: { not: email },
+        },
+      });
+      if (existingUsername) {
+        return NextResponse.json(
+          { error: 'Username already taken' },
+          { status: 400 }
+        );
+      }
+    }
+
     // Determinar el profileStatus
     let profileStatus = existingUser.profileStatus;
 
@@ -76,6 +93,7 @@ export async function PUT(req: Request) {
     const updatedUser = await prisma.user.update({
       where: { email },
       data: {
+        username: username || undefined,
         name,
         phone,
         ...(photo && { photo }), // Solo actualiza photo si se proporciona

@@ -102,10 +102,6 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log('===== DEBUG INVITACION =====');
-    console.log('Usuario actual:', { email: user?.email, username: user?.username });
-    console.log('Equipo:', { id: user?.team?.id, ownerId: user?.team?.ownerId });
-
     if (!user?.team) {
       return NextResponse.json(
         { error: 'No tienes un equipo' },
@@ -115,11 +111,6 @@ export async function POST(req: Request) {
 
     // Verificar que el usuario es el dueño del equipo
     if (user.team.ownerId !== user.username) {
-      console.log('Error de permisos:', {
-        teamOwnerId: user.team.ownerId,
-        userUsername: user.username,
-        match: user.team.ownerId === user.username
-      });
       return NextResponse.json(
         { error: 'Only the team creator can send invitations' },
         { status: 403 }
@@ -155,49 +146,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // Crear la invitación (el manejo de duplicados está en el try-catch)
-    let invitation;
-    try {
-      invitation = await prisma.teamInvitation.create({
-        data: {
-          teamId: user.team.id,
-          invitedUserEmail: invitedUser.email,
-        },
-      });
-    } catch (prismaError) {
-      // Error de constraint único - ya existe una invitación
-      if (prismaError && typeof prismaError === 'object' && 'code' in prismaError && prismaError.code === 'P2002') {
-        console.log('Invitación duplicada detectada, buscando invitación existente...');
-        const existingInv = await prisma.teamInvitation.findUnique({
-          where: {
-            teamId_invitedUserEmail: {
-              teamId: user.team.id,
-              invitedUserEmail: invitedUser.email,
-            },
-          },
-        });
-
-        if (existingInv?.status === 'pending') {
-          return NextResponse.json(
-            { error: 'You already sent an invitation to this user' },
-            { status: 400 }
-          );
-        } else if (existingInv?.status === 'rejected') {
-          // Actualizar invitación rechazada a pendiente
-          invitation = await prisma.teamInvitation.update({
-            where: { id: existingInv.id },
-            data: { status: 'pending', updatedAt: new Date() },
-          });
-        } else if (existingInv?.status === 'accepted') {
-          return NextResponse.json(
-            { error: 'This user already accepted a previous invitation' },
-            { status: 400 }
-          );
-        }
-      } else {
-        throw prismaError; // Re-lanzar otros errores de Prisma
-      }
-    }
+    // Crear la invitación
+    const invitation = await prisma.teamInvitation.create({
+      data: {
+        teamId: user.team.id,
+        invitedUserEmail: invitedUser.email,
+      },
+    });
 
     // Enviar notificación
     await notifyTeamInvitation({

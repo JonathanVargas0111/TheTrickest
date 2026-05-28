@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-// POST /api/teams/invitations/[id]/reject - Rechazar una invitación
+// POST /api/teams/invitations/[id]/reject - Rechazar y eliminar una invitación
 export async function POST(
   req: Request,
   { params }: { params: { id: string } }
@@ -43,18 +43,9 @@ export async function POST(
       );
     }
 
-    // Verificar que la invitación está pendiente
-    if (invitation.status !== 'pending') {
-      return NextResponse.json(
-        { error: 'This invitation has already been processed' },
-        { status: 400 }
-      );
-    }
-
-    // Rechazar la invitación
-    await prisma.teamInvitation.update({
+    // Eliminar la invitación (así se puede invitar de nuevo al mismo usuario)
+    await prisma.teamInvitation.delete({
       where: { id: invitationId },
-      data: { status: 'rejected' },
     });
 
     return NextResponse.json({ success: true });
