@@ -36,7 +36,7 @@ export default function SetPasswordModal({ isOpen, onClose, onSuccess }: SetPass
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const t = useTranslations('setPasswordModal');
+const t = useTranslations('setPasswordModal');
 
   const getT = (key: string): string => {
     try {
