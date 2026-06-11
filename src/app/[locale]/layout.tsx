@@ -11,6 +11,7 @@ import CookieBanner from "@/components/CookieBanner";
 import Footer from "@/components/Footer";
 import { Providers } from "../providers";
 import { generateSchemaLd } from "@/lib/schema-ld";
+import { SITE_URL } from "@/lib/site";
 
 const urbanist = Urbanist({ subsets: ["latin"] });
 
@@ -24,14 +25,22 @@ export async function generateMetadata({ params }: Props) {
 
   const t = await getTranslations({ locale, namespace: 'metadata' });
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
-    ? new URL(process.env.NEXT_PUBLIC_APP_URL)
-    : new URL('http://localhost:3000');
+  const appUrl = new URL(SITE_URL);
 
   return {
     metadataBase: appUrl,
     title: t('title'),
     description: t('description'),
+    alternates: {
+      // hreflang for the bilingual site. Declared at the layout level, so it
+      // is accurate for the home of each locale. Per-subpage hreflang would
+      // need the current pathname (follow-up).
+      languages: {
+        en: `${SITE_URL}/en`,
+        es: `${SITE_URL}/es`,
+        'x-default': `${SITE_URL}/en`,
+      },
+    },
     icons: {
       icon: '/logo-main.png',
       shortcut: '/logo-main.png',

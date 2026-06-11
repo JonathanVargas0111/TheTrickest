@@ -1,16 +1,16 @@
 import { MetadataRoute } from 'next'
+import { SITE_URL, LOCALES } from '@/lib/site'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-  const locales = ['en', 'es']
+  const baseUrl = SITE_URL
 
-  // Static routes
+  // Public, indexable routes only. Private areas (dashboard, admin, auth)
+  // are intentionally excluded and also blocked in robots.ts.
   const routes = ['', 'about', 'contacto', 'spots', 'explore', 'testimonials', 'services', 'portfolio']
 
-  // Generate sitemap entries for all locales
   const sitemapEntries: MetadataRoute.Sitemap = []
 
-  locales.forEach(locale => {
+  LOCALES.forEach(locale => {
     routes.forEach(route => {
       sitemapEntries.push({
         url: `${baseUrl}/${locale}${route ? '/' + route : ''}`,
